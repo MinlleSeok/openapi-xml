@@ -4,7 +4,10 @@ select {
 	width: 200px; /* 원하는 너비 설정 */
 	padding: .8em .5em; /* 여백으로 높이 설정 */
 	font-family: inherit; /* 폰트 상속 */
-	/* background: url() no-repeat 95% 50%; 네이티브 화살표를 커스텀 화살표로 대체 */
+	background-image: url("../image/arrow_down.png"); /*네이티브 화살표를 커스텀 화살표로 대체 */
+	background-repeat: no-repeat;
+	background-position: right center;
+	background-size : 25px 25px;
 	border: 1px solid #999;
 	border-radius: 0px; /* iOS 둥근 모서리 제거 */
 	-webkit-appearance: none; /* 네이티브 외형 감추기 */

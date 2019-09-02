@@ -58,7 +58,7 @@ var Header = ['지역 기반 OpenAPI 대한민국 관광 정보','Regional-Based
 			var queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + serviceKey;
 			queryParams += '&' + encodeURIComponent('MobileOS') + '=' + encodeURIComponent('ETC'); /*IOS(아이폰),AND(안드로이드),WIN(원도우폰),ETC*/
 			queryParams += '&' + encodeURIComponent('MobileApp') + '=' + encodeURIComponent('AppTest'); /*서비스명=어플명*/
-			queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('40'); /*한 페이지 결과 수*/
+			queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('20'); /*한 페이지 결과 수*/
 			// 시군구 코드 불러오기
 			if(number >= 1){
 				queryParams += '&' + encodeURIComponent('areaCode') + '=' + encodeURIComponent(areaCode); /*서비스명=어플명*/
@@ -161,9 +161,14 @@ var Header = ['지역 기반 OpenAPI 대한민국 관광 정보','Regional-Based
 				c.innerHTML = nameList[idx].childNodes[0].nodeValue;
 				b.appendChild(c);
 			}
+			
 			a.appendChild(b);
+			
 			document.getElementById("siGunGu").appendChild(a);
-			sigunguCode = 1;
+			document.getElementById("sigungu").options[0].selected = false;
+			document.getElementById("sigungu").options[1].selected = true;
+			
+			sigunguCode = 2;
 			isloading.stop();
 			openApiAjax("areaBasedList", 2);
 			
@@ -176,16 +181,53 @@ var Header = ['지역 기반 OpenAPI 대한민국 관광 정보','Regional-Based
 			list = xmlObj.getElementsByTagName("item");
 
 			html = "<tr><td>name</td><td>picture</td></tr>";
+
+			// 마커 이미지의 이미지 주소입니다
+			var imageSrc = "http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
+			
+			// 지도를 재설정할 범위정보를 가지고 있을 LatLngBounds 객체를 생성합니다
+			var bounds = new kakao.maps.LatLngBounds();
+			
+			// 마커 이미지의 이미지 크기 입니다
+		    var imageSize = new kakao.maps.Size(24, 35); 
+		    
+		    // 마커 이미지를 생성합니다    
+		    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
 			
 			for(idx=0; idx<list.length; idx++) {
+				
 				html += '<tr><td>'+list[idx].getElementsByTagName("title")[0].childNodes[0].nodeValue+'</td>';
+				
 				if(list[idx].getElementsByTagName("firstimage2")[0]){
 					html += '<td><img src="'+list[idx].getElementsByTagName("firstimage")[0].childNodes[0].nodeValue+'" height="200px"></td></tr>';
+										
 				} else {
 					html += '<td>no picture</td></tr>';
 				}
+				
+				if(list[idx].getElementsByTagName("mapy")[0]){
+					var mapInstance = {
+							title: list[idx].getElementsByTagName("title")[0].childNodes[0].nodeValue.substring(0,10),
+							latlng: new kakao.maps.LatLng(list[idx].getElementsByTagName("mapy")[0].childNodes[0].nodeValue, list[idx].getElementsByTagName("mapx")[0].childNodes[0].nodeValue)
+					};
+					// 마커를 표시할 위치와 title 객체 배열입니다 
+					// 마커를 생성합니다
+				    var marker = new kakao.maps.Marker({
+				        map: map, // 마커를 표시할 지도
+				        position: mapInstance.latlng, // 마커를 표시할 위치
+				        // title : mapInstance.title, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
+				        image : markerImage // 마커 이미지 
+				    });
+				    // marker.setMap(map);
+				    bounds.extend(mapInstance.latlng);
+				}
 			}
 
+			// LatLngBounds 객체에 추가된 좌표들을 기준으로 지도의 범위를 재설정합니다
+		    // 이때 지도의 중심좌표와 레벨이 변경될 수 있습니다
+			map.setBounds(bounds);
+			map.relayout();
+			
 			document.getElementById("result").innerHTML = html;
 			isloading.stop();
 		}
